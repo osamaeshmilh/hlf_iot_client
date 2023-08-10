@@ -13,11 +13,11 @@ def get_sensor_data():
     temp = sense.get_temperature()
     humidity = sense.get_humidity()
     data = {
-        'batchNo': 'batchNo',
-        'warehouseNo': 'warehouseNo',
-        'iotId': 'iotId',
-        'temperatureSensorId': 'temperatureSensorId',
-        'humiditySensorId': 'humiditySensorId',
+        'batchNo': '101',
+        'warehouseNo': '01',
+        'iotId': '01',
+        'temperatureSensorId': '01',
+        'humiditySensorId': '01',
         'timestamp': datetime.datetime.now().isoformat(),
         'temperature': str(temp),
         'humidity': str(humidity)
