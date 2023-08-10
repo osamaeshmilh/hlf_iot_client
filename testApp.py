@@ -25,7 +25,21 @@ def get_sensor_data(device_id, sensor_id):
     print("Sensor data: ", data)
     return json.dumps(data)
 
-# ... [rest of the callback functions] ...
+def on_connect(client, userdata, flags, rc):
+    global offline_queue
+    print(f"Connected with result code {str(rc)}")
+    # Publish any messages that were queued while offline
+    for message in offline_queue:
+        client.publish("iot/data", message)
+    offline_queue = []
+
+# Callback for when the client is disconnected from the server.
+def on_disconnect(client, userdata, rc):
+    print(f"Disconnected with result code {str(rc)}")
+
+# Callback for when a PUBLISH message is received from the server.
+def on_message(client, userdata, msg):
+    print(msg.topic + " " + str(msg.payload))
 
 # Setup MQTT client
 client = mqtt.Client()
