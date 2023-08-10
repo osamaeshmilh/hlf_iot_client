@@ -45,7 +45,7 @@ async def send_data(device_id, sensor_id, client):
         sensor_data = await get_sensor_data(device_id, sensor_id)
         print(f"Publishing data from device {device_id} and sensor {sensor_id}")
         client.publish("iot/data", sensor_data)
-        await asyncio.sleep(5)
+        await asyncio.sleep(1)
 
 async def main():
     client = MQTTClient("client-id")
@@ -58,7 +58,7 @@ async def main():
 
     tasks = []
     for device_id in range(1, 11):
-        for sensor_id in range(1, 2):
+        for sensor_id in range(1, 6):
             task = asyncio.create_task(send_data(device_id, sensor_id, client))
             tasks.append(task)
 
