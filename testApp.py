@@ -11,6 +11,12 @@ PASSWORD = "iot123456"
 
 STOP = asyncio.Event()
 
+# Global variables for temperature and humidity
+global_temp = None
+global_humidity = None
+
+sense = SenseHat()  # Initialize it once instead of multiple times
+
 def on_connect(client, flags, rc, properties):
     print("Connected")
 
@@ -23,11 +29,16 @@ def on_message(client, topic, payload, qos, properties):
 def ask_exit(*args):
     STOP.set()
 
+# Asynchronous function to update temperature and humidity every two seconds
+async def update_sensor_values():
+    global global_temp, global_humidity
+    while True:
+        global_temp = sense.get_temperature()
+        global_humidity = sense.get_humidity()
+        await asyncio.sleep(2)
+
 # Function to get sensor data
 async def get_sensor_data(device_id, sensor_id):
-    sense = SenseHat()
-    temp = sense.get_temperature()
-    humidity = sense.get_humidity()
     data = {
         'batchNo': '101',
         'warehouseNo': '01',
@@ -35,8 +46,8 @@ async def get_sensor_data(device_id, sensor_id):
         'temperatureSensorId': f'{sensor_id:02}',
         'humiditySensorId': f'{sensor_id:02}',
         'timestamp': datetime.datetime.now().isoformat(),
-        'temperature': str(temp),
-        'humidity': str(humidity)
+        'temperature': str(global_temp),
+        'humidity': str(global_humidity)
     }
     return json.dumps(data)
 
@@ -56,8 +67,11 @@ async def main():
     client.set_auth_credentials(USERNAME, PASSWORD)
     await client.connect(BROKER_HOST, BROKER_PORT)
 
-    tasks = []
-    for device_id in range(1, 11):
+    # Start the sensor value update task
+    update_task = asyncio.create_task(update_sensor_values())
+
+    tasks = [update_task]
+    for device_id in range(1, 101):
         for sensor_id in range(1, 6):
             task = asyncio.create_task(send_data(device_id, sensor_id, client))
             tasks.append(task)
