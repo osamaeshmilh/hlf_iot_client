@@ -78,7 +78,7 @@ async def main():
             sensor_data = await get_sensor_data(device_id, sensor_id)
             bulk_data.append(sensor_data)
 
-            if len(bulk_data) == 200:
+            if len(bulk_data) == 400:
                 await send_bulk_data(client, bulk_data)
                 bulk_data.clear()  # Clear the list for the next set of 3000
 
