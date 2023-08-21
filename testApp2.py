@@ -12,8 +12,8 @@ PASSWORD = "iot123456"
 STOP = asyncio.Event()
 
 # Global variables for temperature and humidity
-global_temp = None
-global_humidity = None
+global_temp = 0.0
+global_humidity = 0.0
 
 sense = SenseHat()
 
