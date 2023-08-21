@@ -73,7 +73,7 @@ async def main():
     update_task = asyncio.create_task(update_sensor_values())
     bulk_data = []
 
-    for device_id in range(1, 1001):
+    for device_id in range(1, 10001):
         for sensor_id in range(1, 6):
             sensor_data = await get_sensor_data(device_id, sensor_id)
             bulk_data.append(sensor_data)
