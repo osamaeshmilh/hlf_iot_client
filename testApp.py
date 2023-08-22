@@ -71,7 +71,7 @@ async def main():
     update_task = asyncio.create_task(update_sensor_values())
 
     tasks = [update_task]
-    for device_id in range(1, 11):
+    for device_id in range(1, 6):
         for sensor_id in range(1, 7):
             task = asyncio.create_task(send_data(device_id, sensor_id, client))
             tasks.append(task)
