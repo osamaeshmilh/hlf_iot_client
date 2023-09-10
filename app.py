@@ -3,6 +3,7 @@ from sense_hat import SenseHat
 import json
 import datetime
 import time
+from cryptography.fernet import Fernet
 
 # Offline queue to hold messages when disconnected
 offline_queue = []
@@ -24,6 +25,12 @@ def get_sensor_data():
     }
     print("Sensor data: ", data)
     return json.dumps(data)  # Converts the dictionary into a JSON string
+
+# Encrypt data using a secret key
+def encrypt_data(data, key):
+    cipher_suite = Fernet(key)
+    encrypted_data = cipher_suite.encrypt(data.encode())
+    return encrypted_data
 
 # Callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
@@ -60,19 +67,26 @@ client.connect(broker_ip, broker_port, 60)
 # Start the MQTT client
 client.loop_start()
 
+# secret key
+secret_key = b'ztdoy8Ej58Iq33oPUJFfXS__AHmRG_N2u5IPgwoVJM4='
+
 while True:
     print("Getting sensor data")
     # Get the sensor data
     sensor_data = get_sensor_data()
 
-    print("Publishing sensor data to topic iot/data")
+    print("Encrypting sensor data")
+    # Encrypt the sensor data
+    encrypted_sensor_data = encrypt_data(sensor_data, secret_key)
+
+    print("Publishing encrypted sensor data to topic iot/data")
     # Check if client is connected to the broker
     if client.is_connected():
-        # Publish the sensor data to a topic
-        client.publish("iot/data", sensor_data)
+        # Publish the encrypted sensor data to a topic
+        client.publish("iot/data", encrypted_sensor_data)
     else:
         print("Offline. Adding to queue.")
-        offline_queue.append(sensor_data)
+        offline_queue.append(encrypted_sensor_data)
 
-    # Sleep for 5 seconds before next iteration
+    # Sleep for 5 seconds before the next iteration
     time.sleep(5)
